@@ -4,7 +4,7 @@ Protótipo desenvolvido para a disciplina Projeto Aplicado: Práticas de
 Mercado, com o objetivo de integrar desenvolvimento, infraestrutura e
 segurança da informação.
 
-## Funcionalidades previstas
+## Funcionalidades
 
 - Autenticação com usuário e senha.
 - Página interna protegida.
@@ -44,9 +44,20 @@ assinatura ECDSA.
 
 ## Situação
 
-O código e as configurações ainda serão integrados e testados em produção.
-A documentação dos testes, das categorias OWASP e da implantação
-automatizada será completada após a verificação do funcionamento.
+A aplicação foi publicada na VM e acessada por HTTPS. Foram realizados
+testes de login, cadastro e consulta de demanda, logout e acesso à página
+interna após o encerramento da sessão.
+
+Uma alteração na tela de login foi enviada por push e publicada pelo
+GitHub Actions. Após a publicação, foi verificado que a demanda
+cadastrada permaneceu no banco de dados.
+
+## Uso de inteligência artificial
+
+O ChatGPT foi utilizado como assistente para apoiar a elaboração e a
+revisão do código, a configuração da infraestrutura e a resolução de
+problemas durante a implantação. As configurações e os resultados foram
+acompanhados e verificados durante a execução do projeto.
 
 As credenciais e os dados do banco não devem ser publicados no repositório.
 
