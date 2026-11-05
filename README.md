@@ -24,7 +24,8 @@ segurança da informação.
 - `public/`: páginas e arquivos acessíveis pelo navegador.
 - `src/`: conexão ao banco e funções compartilhadas.
 - `database/schema.sql`: estrutura das tabelas para novas instalações, sem dados ou credenciais.
-- `database/migracao_auditoria.sql`: script de migração da trilha de auditoria para bancos já existentes.
+- `database/migracao_auditoria.sql`: cria a tabela de auditoria em bancos existentes.
+- `database/migracao_ip_auditoria.sql`: adiciona o campo de IP à tabela de auditoria existente.
 
 ## Medidas de segurança implementadas no código
 
@@ -65,6 +66,10 @@ O ChatGPT foi utilizado como assistente para apoiar a elaboração e a
 revisão do código, a configuração da infraestrutura e a resolução de
 problemas durante a implantação. As configurações e os resultados foram
 acompanhados e verificados durante a execução do projeto.
+
+O Antigravity também foi utilizado para apoiar a auditoria do código e a
+implementação de melhorias. As alterações foram revisadas e submetidas a
+testes locais antes da publicação.
 
 As credenciais e os dados do banco não devem ser publicados no repositório.
 
@@ -130,9 +135,12 @@ mas a sessão é obrigatoriamente destruída para não prender o operador.
   de acesso ou controle baseado em papéis (RBAC).
 - **Mutabilidade por usuários privilegiados no banco:** Os registros são mantidos
   em tabela relacional convencional. Usuários ou serviços com privilégios de
-  administração no MySQL ou acesso direto à VM podem alterar, truncar ou excluir
-  registros retroativamente, pois a tabela não conta com armazenamento imutável
-  WORM (*Write Once, Read Many*) ou encadeamento criptográfico.
+  administração no MySQL ou acesso direto à VM podem alterar ou excluir
+  registros. O usuário `painel_app` também possui permissões de `UPDATE` e
+  `DELETE` no banco. A tabela não possui armazenamento imutável WORM
+  (*Write Once, Read Many*) nem encadeamento criptográfico.
+- **Alertas automáticos:** A trilha permite consultar eventos, mas esta versão
+  não implementa alertas automáticos para os eventos da aplicação.
 
 ## Implantação automatizada
 
