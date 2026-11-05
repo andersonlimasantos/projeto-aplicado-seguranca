@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <section class="cartao">
         <p class="identificacao">PROJETO APLICADO</p>
         <h1>Painel de Demandas de TI</h1>
-        <p>Acesse para gerenciar as demandas de TI.</p>
+        <p>Acesse para acompanhar as demandas de TI.</p>
 
         <?php if ($mensagem !== ''): ?>
             <p class="mensagem erro" role="alert">

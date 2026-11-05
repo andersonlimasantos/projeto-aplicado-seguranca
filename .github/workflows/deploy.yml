@@ -31,8 +31,8 @@ jobs:
           install -d -m 2750 /srv/painel-ti/current/public
           install -d -m 2750 /srv/painel-ti/current/src
 
-          rsync -rlt --delete --chmod=F640 \
+          rsync -rlt --delete --chmod=D755,F644 \
             public/ /srv/painel-ti/current/public/
 
-          rsync -rlt --delete --chmod=F640 \
+          rsync -rlt --delete --chmod=D755,F644 \
             src/ /srv/painel-ti/current/src/
