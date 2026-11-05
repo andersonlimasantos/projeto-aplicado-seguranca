@@ -1,0 +1,21 @@
+# Credenciais e configurações locais
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Bancos de dados e backups
+*.sqlite
+*.sqlite3
+*.db
+*.sql.gz
+*.dump
+
+
+# Arquivos temporários
+*.log
+*.swp
+.DS_Store

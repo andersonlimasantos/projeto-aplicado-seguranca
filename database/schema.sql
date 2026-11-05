@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    usuario VARCHAR(100) NOT NULL UNIQUE,
+    senha_hash VARCHAR(255) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS demandas (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(150) NOT NULL,
+    descricao TEXT NOT NULL,
+    prioridade ENUM('Baixa', 'Média', 'Alta') NOT NULL,
+    situacao ENUM('Aberta', 'Em andamento', 'Concluída') NOT NULL DEFAULT 'Aberta',
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS tentativas_login (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ip VARBINARY(16) NOT NULL,
+    ocorreu_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX indice_ip_data (ip, ocorreu_em)
+) ENGINE=InnoDB;

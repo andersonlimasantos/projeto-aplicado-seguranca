@@ -1,0 +1,38 @@
+name: Testar e publicar painel
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-painel
+  cancel-in-progress: false
+
+jobs:
+  testar-e-publicar:
+    runs-on: self-hosted
+
+    steps:
+      - name: Obter o código
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Verificar sintaxe PHP
+        run: |
+          find public src -type f -name '*.php' -print0 |
+            xargs -0 -r -n 1 php -l
+
+      - name: Publicar arquivos na VM
+        run: |
+          set -eu
+          install -d -m 2750 /srv/painel-ti/current/public
+          install -d -m 2750 /srv/painel-ti/current/src
+
+          rsync -rlt --delete --chmod=D2750,F640 \
+            public/ /srv/painel-ti/current/public/
+
+          rsync -rlt --delete --chmod=D2750,F640 \
+            src/ /srv/painel-ti/current/src/

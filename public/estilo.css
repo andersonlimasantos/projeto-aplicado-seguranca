@@ -1,0 +1,122 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f2f5f9;
+    color: #243348;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.acesso,
+.conteudo {
+    width: min(92%, 900px);
+    margin: 48px auto;
+}
+
+.acesso {
+    max-width: 460px;
+    margin-top: 10vh;
+}
+
+.cartao {
+    background: #fff;
+    border: 1px solid #e1e8f0;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 18px rgba(27, 50, 76, 0.06);
+}
+
+.identificacao {
+    color: #54718f;
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+}
+
+h1, h2, h3 {
+    color: #173e68;
+}
+
+h1 {
+    margin-top: 0;
+    font-size: 1.8rem;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin: 16px 0 6px;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #b9c9d9;
+    border-radius: 6px;
+    font: inherit;
+}
+
+button {
+    background: #175a96;
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    padding: 11px 18px;
+    margin-top: 18px;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #104778;
+}
+
+button.secundario {
+    background: #e5edf5;
+    color: #173e68;
+}
+
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.demanda {
+    border-top: 1px solid #e1e8f0;
+    padding: 12px 0;
+    overflow-wrap: anywhere;
+}
+
+.mensagem {
+    padding: 12px;
+    border-radius: 6px;
+}
+
+.erro {
+    background: #fff0ef;
+    color: #a12520;
+}
+
+.sucesso {
+    background: #eaf7ed;
+    color: #17602c;
+}
+
+@media (max-width: 600px) {
+    .topo {
+        display: block;
+    }
+
+    .cartao {
+        padding: 20px;
+    }
+}
