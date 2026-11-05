@@ -85,11 +85,40 @@ function verificar_csrf(): void
     }
 }
 
-// Impede que visitantes não autenticados acessem páginas internas.
+// Impede que visitantes não autenticados acessem páginas internas
+// e encerra sessões inativas há mais de 30 minutos ou sem marcadores válidos.
 function exigir_login(): void
 {
-    if (empty($_SESSION['usuario_id'])) {
+    $limiteInatividade = 1800; // 30 minutos em segundos
+    $agora = time();
+    $ultimoAcesso = $_SESSION['ultimo_acesso'] ?? null;
+
+    if (
+        empty($_SESSION['usuario_id']) ||
+        !is_int($ultimoAcesso) ||
+        ($agora - $ultimoAcesso) > $limiteInatividade
+    ) {
+        if (!empty($_SESSION['usuario_id'])) {
+            $_SESSION = [];
+
+            if (ini_get('session.use_cookies')) {
+                $opcoes = session_get_cookie_params();
+                setcookie(session_name(), '', [
+                    'expires' => $agora - 3600,
+                    'path' => $opcoes['path'],
+                    'domain' => $opcoes['domain'],
+                    'secure' => $opcoes['secure'],
+                    'httponly' => $opcoes['httponly'],
+                    'samesite' => $opcoes['samesite'],
+                ]);
+            }
+
+            session_destroy();
+        }
+
         header('Location: /login.php');
         exit;
     }
+
+    $_SESSION['ultimo_acesso'] = $agora;
 }

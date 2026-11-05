@@ -4,7 +4,36 @@ declare(strict_types=1);
 require_once __DIR__ . '/../src/bootstrap.php';
 
 if (!empty($_SESSION['usuario_id'])) {
-    header('Location: /painel.php');
+    $limiteInatividade = 1800; // 30 minutos
+    $ultimoAcesso = $_SESSION['ultimo_acesso'] ?? null;
+
+    if (
+        is_int($ultimoAcesso) &&
+        (time() - $ultimoAcesso) <= $limiteInatividade
+    ) {
+        header('Location: /painel.php');
+        exit;
+    }
+
+    // Sessão expirada ou legada sem marcadores: encerra a sessão anterior
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $opcoes = session_get_cookie_params();
+        setcookie(session_name(), '', [
+            'expires' => time() - 3600,
+            'path' => $opcoes['path'],
+            'domain' => $opcoes['domain'],
+            'secure' => $opcoes['secure'],
+            'httponly' => $opcoes['httponly'],
+            'samesite' => $opcoes['samesite'],
+        ]);
+    }
+    session_destroy();
+
+    // Redireciona para uma nova requisição GET limpa, garantindo que a página
+    // não continue sem sessão ativa e permitindo que o bootstrap inicie uma nova
+    // sessão com token CSRF renovado.
+    header('Location: /login.php');
     exit;
 }
 
@@ -49,12 +78,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $consulta->execute(['usuario' => $usuario]);
             $registro = $consulta->fetch(PDO::FETCH_ASSOC);
 
-            if ($registro && password_verify($senha, $registro['senha_hash'])) {
+            // Hash de referência fictício para atuar como mitigação que reduz diferenças
+            // de tempo de resposta (timing attacks) entre usuários existentes e inexistentes,
+            // sem expor credenciais reais.
+            $hashReferencia = '$2y$10$nOUIs54PnAhSRe8BCqYguOkDEo52qA15C/g/w.3kQeW5x8b1T8zK.';
+            $hashAlvo = ($registro && !empty($registro['senha_hash']))
+                ? (string) $registro['senha_hash']
+                : $hashReferencia;
+
+            $senhaValida = password_verify($senha, $hashAlvo);
+
+            if ($registro && $senhaValida) {
                 session_regenerate_id(true);
 
                 $_SESSION['usuario_id'] = (int) $registro['id'];
                 $_SESSION['nome'] = $registro['nome'];
                 $_SESSION['csrf'] = bin2hex(random_bytes(32));
+                $_SESSION['ultimo_acesso'] = time();
 
                 header('Location: /painel.php');
                 exit;

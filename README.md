@@ -25,13 +25,16 @@ segurança da informação.
 
 ## Medidas de segurança implementadas no código
 
-- Verificação de sessão nas páginas internas.
+- Verificação de sessão nas páginas internas com expiração por inatividade de 30 minutos.
+- Invalidação segura de sessões legadas sem marcadores temporais.
+- Mitigação para reduzir diferenças de tempo na autenticação (timing attacks) via hash de referência fictício.
 - Senhas armazenadas como hash.
 - Consultas preparadas ao banco.
 - Tratamento de textos exibidos nas páginas.
 - Tokens de proteção nos formulários.
 - Cookies de sessão com as opções Secure, HttpOnly e SameSite.
 - Registro de tentativas de login para limitação por IP.
+- Prevenção de vazamento acidental de dumps com bloqueio de arquivos `*.sql` no `.gitignore`.
 
 ## Infraestrutura
 
@@ -66,9 +69,10 @@ As credenciais e os dados do banco não devem ser publicados no repositório.
 ### A01 — Controle de Acesso Quebrado
 
 As páginas internas verificam a sessão no servidor por meio da função
-`exigir_login()`, em `src/bootstrap.php`. Os formulários de cadastro e
-logout usam tokens CSRF. O acesso direto ao painel sem autenticação deve
-redirecionar para o login.
+`exigir_login()`, em `src/bootstrap.php`. A sessão é invalidada após
+30 minutos de inatividade, e sessões legadas sem marcadores temporais
+são descartadas de forma segura. Os formulários de cadastro e logout usam
+tokens CSRF. O acesso direto ao painel sem autenticação redireciona para o login.
 
 ### A04 — Falhas Criptográficas
 
@@ -83,6 +87,16 @@ O login e o cadastro usam consultas preparadas com PDO. Os textos
 apresentados nas páginas são tratados com `htmlspecialchars()` pela
 função `escapar()`, reduzindo riscos como SQL Injection e XSS.
 
+### A07 — Falhas de Autenticação
+
+Para mitigar a enumeração de usuários por ataques de temporização
+(*timing attacks*), o fluxo de login compara tentativas contra um hash
+bcrypt fictício quando o usuário não existe no banco. Trata-se de uma
+mitigação que reduz as discrepâncias no tempo de resposta em relação a
+um usuário existente, sem expor credenciais reais (embora não elimine
+completamente variações decorrentes de consultas ao banco ou parâmetros
+distintos de custo de hashing).
+
 ## Implantação automatizada
 
 O arquivo `.github/workflows/deploy.yml` é acionado por push na branch
@@ -91,8 +105,20 @@ terminar com sucesso, copia as pastas da aplicação para a VM usando um
 runner próprio.
 
 O runner é executado pela conta `painel-deploy`, sem executar workflows
-de pull requests. Como o repositório é público, alterações e ações de
-terceiros devem ser revisadas antes de serem executadas no runner.
+de pull requests.
+
+### Limitação de segurança: runner self-hosted em repositório público
+
+O uso de um runner próprio (*self-hosted*) em um repositório público é uma
+limitação de segurança reconhecida no projeto. O GitHub recomenda o uso de
+runners auto-hospedados apenas em repositórios privados, pois em repositórios
+públicos modificações não autorizadas ou falhas de configuração em workflows
+podem resultar na execução de código arbitrário diretamente no host. Como o
+runner deste projeto está co-alocado na própria VM de produção, uma potencial
+violação daria acesso imediato ao ambiente do servidor (arquivos locais,
+serviços internos e metadados da instância na nuvem). Recomenda-se, como
+evolução futura, migrar para runners gerenciados na nuvem (*GitHub-hosted*)
+ou isolar o processo em contêineres efêmeros descartáveis.
 
 As verificações de sintaxe não substituem testes funcionais ou uma
 auditoria completa de segurança.

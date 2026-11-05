@@ -8,6 +8,8 @@
 *.pfx
 
 # Bancos de dados e backups
+*.sql
+!database/schema.sql
 *.sqlite
 *.sqlite3
 *.db
