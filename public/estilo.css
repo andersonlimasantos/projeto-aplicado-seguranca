@@ -190,3 +190,29 @@ button.secundario {
         padding: 20px;
     }
 }
+
+
+/* Aparência de botão para os links de navegação. */
+.acoes-topo a {
+    display: inline-block;
+    background: #e5edf5;
+    color: #173e68;
+    border-radius: 6px;
+    padding: 11px 18px;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.acoes-topo a:hover {
+    background: #d4e1ee;
+    text-decoration: none;
+}
+
+.acoes-topo a:focus-visible {
+    outline: 3px solid #175a96;
+    outline-offset: 2px;
+}
+
+.acoes-topo button {
+    margin-top: 0;
+}

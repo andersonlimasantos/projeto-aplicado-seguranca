@@ -159,3 +159,11 @@ ou isolar o processo em contêineres efêmeros descartáveis.
 
 As verificações de sintaxe não substituem testes funcionais ou uma
 auditoria completa de segurança.
+
+
+### Endereço IP na auditoria
+
+Os novos eventos de auditoria registram o endereço IP informado ao servidor
+na conexão, quando disponível. Registros anteriores à migração podem aparecer
+com IP indisponível. O IP é um dado que deve ser protegido e seu acesso deve
+ser considerado na política de retenção e privacidade do sistema.

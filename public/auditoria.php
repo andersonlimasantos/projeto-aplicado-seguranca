@@ -8,7 +8,7 @@ $erro = '';
 
 try {
     $consulta = banco()->query(
-        'SELECT id, usuario, tipo_evento, demanda_id, detalhes, criado_em
+        'SELECT id, usuario, tipo_evento, demanda_id, detalhes, criado_em, ip
          FROM auditoria
          ORDER BY id DESC
          LIMIT 100'
@@ -60,6 +60,7 @@ try {
                             <tr>
                                 <th>Data / Hora</th>
                                 <th>Usuário</th>
+                                <th>IP</th>
                                 <th>Evento</th>
                                 <th>Demanda</th>
                                 <th>Detalhes</th>
@@ -70,6 +71,7 @@ try {
                                 <tr>
                                     <td><?= escapar((string) $reg['criado_em']) ?></td>
                                     <td><strong><?= escapar((string) $reg['usuario']) ?></strong></td>
+                                    <td><?= escapar((string) ($reg['ip'] ?? 'Indisponível')) ?></td>
                                     <td>
                                         <?php
                                         $classeBadge = match ($reg['tipo_evento']) {

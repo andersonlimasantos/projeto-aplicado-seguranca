@@ -139,9 +139,15 @@ function registrar_auditoria(
         throw new InvalidArgumentException('Os detalhes da auditoria excedem o limite de 255 bytes.');
     }
 
+    // Usa o endereço recebido pelo servidor, sem confiar em cabeçalhos do cliente.
+    $endereco = $_SERVER['REMOTE_ADDR'] ?? null;
+    $ip = is_string($endereco) && filter_var($endereco, FILTER_VALIDATE_IP)
+        ? $endereco
+        : null;
+
     $comando = $pdo->prepare(
-        'INSERT INTO auditoria (usuario_id, usuario, tipo_evento, demanda_id, detalhes)
-         VALUES (:usuario_id, :usuario, :tipo_evento, :demanda_id, :detalhes)'
+        'INSERT INTO auditoria (usuario_id, usuario, tipo_evento, demanda_id, detalhes, ip)
+         VALUES (:usuario_id, :usuario, :tipo_evento, :demanda_id, :detalhes, :ip)'
     );
 
     $comando->execute([
@@ -150,5 +156,6 @@ function registrar_auditoria(
         'tipo_evento' => $tipoEvento,
         'demanda_id' => $demandaId,
         'detalhes' => $detalhes,
+        'ip' => $ip,
     ]);
 }

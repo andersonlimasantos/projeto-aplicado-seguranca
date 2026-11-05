@@ -11,6 +11,7 @@
 *.sql
 !database/schema.sql
 !database/migracao_auditoria.sql
+!database/migracao_ip_auditoria.sql
 *.sqlite
 *.sqlite3
 *.db

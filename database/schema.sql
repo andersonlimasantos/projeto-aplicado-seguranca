@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS auditoria (
     tipo_evento VARCHAR(50) NOT NULL,
     demanda_id INT UNSIGNED NULL,
     detalhes VARCHAR(255) NULL,
+    ip VARCHAR(45) NULL,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX indice_usuario (usuario_id),
     INDEX indice_tipo_evento (tipo_evento),
