@@ -49,3 +49,39 @@ A documentação dos testes, das categorias OWASP e da implantação
 automatizada será completada após a verificação do funcionamento.
 
 As credenciais e os dados do banco não devem ser publicados no repositório.
+
+## OWASP Top 10:2025
+
+### A01 — Controle de Acesso Quebrado
+
+As páginas internas verificam a sessão no servidor por meio da função
+`exigir_login()`, em `src/bootstrap.php`. Os formulários de cadastro e
+logout usam tokens CSRF. O acesso direto ao painel sem autenticação deve
+redirecionar para o login.
+
+### A04 — Falhas Criptográficas
+
+As senhas são armazenadas como hash, utilizando `password_hash()` e
+verificadas com `password_verify()`. A comunicação com o site usa HTTPS.
+As credenciais do MySQL ficam em arquivo fora do repositório e da pasta
+pública. O banco de dados não é criptografado por essas medidas.
+
+### A05 — Injeção
+
+O login e o cadastro usam consultas preparadas com PDO. Os textos
+apresentados nas páginas são tratados com `htmlspecialchars()` pela
+função `escapar()`, reduzindo riscos como SQL Injection e XSS.
+
+## Implantação automatizada
+
+O arquivo `.github/workflows/deploy.yml` é acionado por push na branch
+`main`. O workflow verifica a sintaxe dos arquivos PHP e, se a etapa
+terminar com sucesso, copia as pastas da aplicação para a VM usando um
+runner próprio.
+
+O runner é executado pela conta `painel-deploy`, sem executar workflows
+de pull requests. Como o repositório é público, alterações e ações de
+terceiros devem ser revisadas antes de serem executadas no runner.
+
+As verificações de sintaxe não substituem testes funcionais ou uma
+auditoria completa de segurança.
