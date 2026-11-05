@@ -89,10 +89,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $senhaValida = password_verify($senha, $hashAlvo);
 
             if ($registro && $senhaValida) {
+                // Registra o evento de auditoria antes de promover a sessão do usuário.
+                // Se a gravação da auditoria falhar, a sessão não é autenticada.
+                registrar_auditoria(
+                    $pdo,
+                    'LOGIN_SUCESSO',
+                    (int) $registro['id'],
+                    $usuario,
+                    null,
+                    'Autenticação realizada com sucesso'
+                );
+
                 session_regenerate_id(true);
 
                 $_SESSION['usuario_id'] = (int) $registro['id'];
                 $_SESSION['nome'] = $registro['nome'];
+                $_SESSION['usuario'] = $usuario;
                 $_SESSION['csrf'] = bin2hex(random_bytes(32));
                 $_SESSION['ultimo_acesso'] = time();
 
@@ -108,6 +120,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mensagem = 'Usuário ou senha inválidos.';
         }
     } catch (Throwable $erro) {
+        // Em caso de falha durante a autenticação ou gravação da auditoria,
+        // assegura que nenhuma sessão permaneça autenticada.
+        unset(
+            $_SESSION['usuario_id'],
+            $_SESSION['nome'],
+            $_SESSION['usuario'],
+            $_SESSION['ultimo_acesso']
+        );
         error_log('Falha no login do painel: ' . $erro->getMessage());
         http_response_code(500);
         $mensagem = 'Não foi possível acessar o sistema neste momento.';

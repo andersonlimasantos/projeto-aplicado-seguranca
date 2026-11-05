@@ -122,3 +122,33 @@ function exigir_login(): void
 
     $_SESSION['ultimo_acesso'] = $agora;
 }
+
+/**
+ * Registra eventos na trilha de auditoria do sistema.
+ * Não registra senhas, hashes, tokens, cookies, credenciais ou o corpo completo de demandas.
+ */
+function registrar_auditoria(
+    PDO $pdo,
+    string $tipoEvento,
+    ?int $usuarioId,
+    string $usuario,
+    ?int $demandaId = null,
+    ?string $detalhes = null
+): void {
+    if ($detalhes !== null && strlen($detalhes) > 255) {
+        throw new InvalidArgumentException('Os detalhes da auditoria excedem o limite de 255 bytes.');
+    }
+
+    $comando = $pdo->prepare(
+        'INSERT INTO auditoria (usuario_id, usuario, tipo_evento, demanda_id, detalhes)
+         VALUES (:usuario_id, :usuario, :tipo_evento, :demanda_id, :detalhes)'
+    );
+
+    $comando->execute([
+        'usuario_id' => $usuarioId,
+        'usuario' => $usuario,
+        'tipo_evento' => $tipoEvento,
+        'demanda_id' => $demandaId,
+        'detalhes' => $detalhes,
+    ]);
+}

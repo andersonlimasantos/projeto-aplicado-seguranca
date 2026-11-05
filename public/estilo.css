@@ -111,9 +111,79 @@ button.secundario {
     color: #17602c;
 }
 
+.acoes-topo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.acoes-topo a {
+    color: #175a96;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.acoes-topo a:hover {
+    text-decoration: underline;
+}
+
+.tabela-responsiva {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tabela-auditoria {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 0.9rem;
+}
+
+.tabela-auditoria th,
+.tabela-auditoria td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e1e8f0;
+    text-align: left;
+}
+
+.tabela-auditoria th {
+    background: #f8fafc;
+    color: #173e68;
+    font-weight: bold;
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.badge-login {
+    background: #eaf7ed;
+    color: #17602c;
+}
+
+.badge-demanda {
+    background: #e8f1fa;
+    color: #175a96;
+}
+
+.badge-logout {
+    background: #f1f3f5;
+    color: #495057;
+}
+
 @media (max-width: 600px) {
     .topo {
         display: block;
+    }
+
+    .acoes-topo {
+        margin-top: 12px;
+        justify-content: space-between;
     }
 
     .cartao {

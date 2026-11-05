@@ -11,6 +11,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 verificar_csrf();
 
+$usuarioId = isset($_SESSION['usuario_id']) && is_int($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : null;
+$usuario = (string) ($_SESSION['usuario'] ?? $_SESSION['nome'] ?? 'desconhecido');
+
+try {
+    registrar_auditoria(
+        banco(),
+        'LOGOUT',
+        $usuarioId,
+        $usuario,
+        null,
+        'Encerramento voluntário da sessão'
+    );
+} catch (Throwable $e) {
+    error_log('Falha ao registrar auditoria de logout: ' . $e->getMessage());
+}
+
 $_SESSION = [];
 
 if (ini_get('session.use_cookies')) {

@@ -10,6 +10,8 @@ segurança da informação.
 - Página interna protegida.
 - Cadastro e consulta de demandas de TI.
 - Encerramento da sessão por logout.
+- Trilha de auditoria para acompanhamento de login, cadastro de demandas e logout.
+- Página interna protegida para consulta do histórico de auditoria.
 
 ## Tecnologias
 
@@ -21,13 +23,15 @@ segurança da informação.
 
 - `public/`: páginas e arquivos acessíveis pelo navegador.
 - `src/`: conexão ao banco e funções compartilhadas.
-- `database/schema.sql`: estrutura das tabelas, sem dados ou credenciais.
+- `database/schema.sql`: estrutura das tabelas para novas instalações, sem dados ou credenciais.
+- `database/migracao_auditoria.sql`: script de migração da trilha de auditoria para bancos já existentes.
 
 ## Medidas de segurança implementadas no código
 
 - Verificação de sessão nas páginas internas com expiração por inatividade de 30 minutos.
 - Invalidação segura de sessões legadas sem marcadores temporais.
 - Mitigação para reduzir diferenças de tempo na autenticação (timing attacks) via hash de referência fictício.
+- Trilha de auditoria em banco de dados para rastreabilidade de eventos críticos.
 - Senhas armazenadas como hash.
 - Consultas preparadas ao banco.
 - Tratamento de textos exibidos nas páginas.
@@ -96,6 +100,39 @@ mitigação que reduz as discrepâncias no tempo de resposta em relação a
 um usuário existente, sem expor credenciais reais (embora não elimine
 completamente variações decorrentes de consultas ao banco ou parâmetros
 distintos de custo de hashing).
+
+### A09 — Falhas de Registro e Alerta de Segurança
+
+O sistema implementa uma trilha de auditoria na tabela `auditoria`, registrando
+eventos operacionais e de autenticação: login bem-sucedido (`LOGIN_SUCESSO`),
+criação de demanda (`CADASTRO_DEMANDA`) e logout voluntário (`LOGOUT`). Cada
+registro contém timestamp, identificador e nome do usuário responsável, tipo de
+evento, identificador da demanda associada e detalhes contextuais mínimos (como a
+prioridade atribuída). Informações sensíveis (senhas, hashes, tokens, cookies e
+credenciais), bem como o título e a descrição integral das demandas, não são
+gravados na auditoria.
+
+A consulta aos eventos é disponibilizada na página `/auditoria.php`, exibindo
+os 100 registros mais recentes ordenados do mais novo para o mais antigo.
+
+No cadastro de demandas, a operação é transacional e atômica (*fail-closed*): caso
+a gravação da auditoria falhe, a transação sofre rollback e a demanda não é criada,
+garantindo rastreabilidade obrigatória. No login, a auditoria é registrada antes
+de promover a sessão; se falhar, o usuário não permanece autenticado e a sessão
+é abortada (*fail-closed*). No logout, a rotina é resiliente (*fail-open* para
+encerramento): eventuais falhas na gravação da auditoria são logadas no servidor,
+mas a sessão é obrigatoriamente destruída para não prender o operador.
+
+#### Limitações conhecidas da trilha de auditoria nesta versão
+
+- **Acesso amplo aos registros:** Todos os usuários autenticados possuem acesso
+  à página de consulta da auditoria (`/auditoria.php`), sem restrição por perfis
+  de acesso ou controle baseado em papéis (RBAC).
+- **Mutabilidade por usuários privilegiados no banco:** Os registros são mantidos
+  em tabela relacional convencional. Usuários ou serviços com privilégios de
+  administração no MySQL ou acesso direto à VM podem alterar, truncar ou excluir
+  registros retroativamente, pois a tabela não conta com armazenamento imutável
+  WORM (*Write Once, Read Many*) ou encadeamento criptográfico.
 
 ## Implantação automatizada
 

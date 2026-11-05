@@ -10,6 +10,7 @@
 # Bancos de dados e backups
 *.sql
 !database/schema.sql
+!database/migracao_auditoria.sql
 *.sqlite
 *.sqlite3
 *.db

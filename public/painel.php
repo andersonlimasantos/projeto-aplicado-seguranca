@@ -22,7 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = 'Confira os campos e tente novamente.';
     } else {
         try {
-            $comando = banco()->prepare(
+            $pdo = banco();
+            $pdo->beginTransaction();
+
+            $comando = $pdo->prepare(
                 'INSERT INTO demandas (titulo, descricao, prioridade)
                  VALUES (:titulo, :descricao, :prioridade)'
             );
@@ -33,9 +36,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'prioridade' => $prioridade,
             ]);
 
+            $demandaId = (int) $pdo->lastInsertId();
+
+            registrar_auditoria(
+                $pdo,
+                'CADASTRO_DEMANDA',
+                isset($_SESSION['usuario_id']) && is_int($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : null,
+                (string) ($_SESSION['usuario'] ?? $_SESSION['nome'] ?? 'desconhecido'),
+                $demandaId,
+                'Prioridade: ' . $prioridade
+            );
+
+            $pdo->commit();
+
             header('Location: /painel.php?salvo=1');
             exit;
         } catch (Throwable $e) {
+            if (isset($pdo) && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log('Erro ao cadastrar demanda: ' . $e->getMessage());
             $erro = 'Não foi possível cadastrar a demanda.';
         }
@@ -74,10 +93,13 @@ try {
             <h1>Painel de Demandas de TI</h1>
             <p>Olá, <?= escapar((string) ($_SESSION['nome'] ?? '')) ?>.</p>
         </div>
-        <form method="post" action="/logout.php">
-            <input type="hidden" name="csrf" value="<?= escapar(csrf_token()) ?>">
-            <button class="secundario" type="submit">Sair</button>
-        </form>
+        <nav class="acoes-topo">
+            <a href="/auditoria.php">Trilha de auditoria</a>
+            <form method="post" action="/logout.php">
+                <input type="hidden" name="csrf" value="<?= escapar(csrf_token()) ?>">
+                <button class="secundario" type="submit">Sair</button>
+            </form>
+        </nav>
     </header>
 
     <?php if ($mensagem !== ''): ?>
